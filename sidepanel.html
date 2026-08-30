@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>YouTube Lingopal</title>
+<link rel="stylesheet" href="sidepanel.css" />
+</head>
+<body>
+  <div id="app">
+    <div id="video-banner">
+      <div id="video-banner-text">
+        <div id="video-title" data-i18n="top.noVideo"></div>
+        <div id="video-meta"></div>
+      </div>
+      <button id="btn-settings" data-i18n-title="top.settings" aria-label="Settings">⚙</button>
+    </div>
+
+    <div id="setup-banner" class="hidden">
+      <b data-i18n="setup.title"></b>
+      <span data-i18n="setup.body"></span>
+      <div class="banner-actions">
+        <button id="btn-goto-settings" data-i18n="setup.goSettings"></button>
+        <button id="btn-skip-setup" data-i18n="setup.skip"></button>
+      </div>
+    </div>
+
+    <div id="tabs">
+      <button class="tab-btn active" data-tab="learn" data-i18n="tab.subtitle"></button>
+      <button class="tab-btn" data-tab="outline" data-i18n="tab.outline"></button>
+      <button class="tab-btn" data-tab="notes" data-i18n="tab.notes"></button>
+      <button class="tab-btn" data-tab="vocab" data-i18n="tab.vocab"></button>
+    </div>
+
+    <div id="panels">
+      <!-- 字幕 -->
+      <section id="panel-learn" class="panel active">
+        <div id="current-card" class="card">
+          <div class="card-label" data-i18n="learn.currentLabel"></div>
+          <div id="current-original" class="selectable-text" data-i18n="learn.placeholder"></div>
+          <div id="current-target" class="target-text"></div>
+          <div class="row-actions">
+            <button id="btn-translate-current" data-i18n="learn.translate"></button>
+            <button id="btn-explain-current" data-i18n="learn.explainSel" data-i18n-title="learn.explainSelTip"></button>
+            <button id="btn-replay-current" data-i18n="learn.replay"></button>
+          </div>
+          <div class="note-input-row">
+            <textarea id="current-note" data-i18n-ph="learn.notePlaceholder"></textarea>
+            <button id="btn-save-current" data-i18n="learn.save"></button>
+          </div>
+          <div id="current-save-hint" class="hint"></div>
+          <div id="explain-box" class="hidden"></div>
+        </div>
+
+        <div id="transcript-toolbar">
+          <div class="tool-row">
+            <span data-i18n="learn.view"></span>
+            <div id="view-mode" class="seg" role="group">
+              <button type="button" data-value="bilingual" data-i18n="learn.viewBoth"></button>
+              <button type="button" data-value="original" data-i18n="learn.viewOrig"></button>
+              <button type="button" data-value="target" data-i18n="learn.viewTarget"></button>
+            </div>
+          </div>
+          <div class="tool-row">
+            <span data-i18n="learn.sourceLang"></span>
+            <select id="source-lang-select"></select>
+          </div>
+          <div class="tool-row">
+            <span data-i18n="learn.into"></span>
+            <div id="target-lang-select" class="seg" role="group"></div>
+          </div>
+          <button id="btn-full-translate"></button>
+        </div>
+        <div id="translate-progress" class="hint"></div>
+        <div id="transcript-list"></div>
+      </section>
+
+      <!-- 大纲概述 -->
+      <section id="panel-outline" class="panel">
+        <button id="btn-gen-outline" data-i18n="outline.generate"></button>
+        <div id="outline-hint" class="hint"></div>
+        <div id="outline-chapters"></div>
+      </section>
+
+      <!-- 笔记 -->
+      <section id="panel-notes" class="panel">
+        <div class="toolbar">
+          <span id="notes-count" class="hint"></span>
+          <span class="hint hl-hint" data-i18n="notes.hlHint"></span>
+          <button class="export-btn" data-scope="notes" data-i18n="notes.export"></button>
+        </div>
+        <div id="notes-list"></div>
+      </section>
+
+      <!-- 生词 -->
+      <section id="panel-vocab" class="panel">
+        <div class="toolbar">
+          <span id="vocab-count" class="hint"></span>
+          <span class="hint hl-hint" data-i18n="notes.hlHint"></span>
+          <button class="export-btn" data-scope="vocab" data-i18n="vocab.export"></button>
+        </div>
+        <div id="vocab-list"></div>
+      </section>
+
+      <!-- 设置 -->
+      <section id="panel-settings" class="panel">
+        <div class="settings-group">
+          <label><span data-i18n="set.uiLang"></span>
+            <select id="set-uiLang">
+              <option value="auto" data-i18n="set.uiLangAuto"></option>
+              <option value="zh">中文</option>
+              <option value="en">English</option>
+            </select>
+          </label>
+          <label><span data-i18n="set.defaultLang"></span>
+            <select id="set-targetLang">
+              <option value="zh" data-i18n="set.langZh"></option>
+              <option value="en" data-i18n="set.langEn"></option>
+              <option value="fr" data-i18n="set.langFr"></option>
+            </select>
+          </label>
+        </div>
+
+        <div class="settings-group">
+          <label><span data-i18n="set.explainLang"></span>
+            <select id="set-explainLang">
+              <option value="target" data-i18n="set.explainLangTarget"></option>
+              <option value="source" data-i18n="set.explainLangSource"></option>
+            </select>
+          </label>
+        </div>
+
+        <div class="settings-group">
+          <label><span data-i18n="set.apiKey"></span>
+            <input id="set-apiKey" type="password" placeholder="sk-xxxxxxxx" />
+          </label>
+          <label><span data-i18n="set.baseUrl"></span>
+            <input id="set-baseUrl" type="text" placeholder="https://api.deepseek.com" />
+          </label>
+          <label><span data-i18n="set.transModel"></span>
+            <input id="set-translateModel" type="text" />
+          </label>
+          <label><span data-i18n="set.reasonModel"></span>
+            <input id="set-reasonModel" type="text" />
+          </label>
+        </div>
+
+        <div class="settings-group">
+          <label class="switch-row"><input id="set-qualityFirst" type="checkbox" /> <span data-i18n="set.qualityFirst"></span></label>
+          <label class="switch-row"><input id="set-clickExplain" type="checkbox" /> <span data-i18n="set.clickExplain"></span></label>
+          <label class="switch-row"><input id="set-hoverGloss" type="checkbox" /> <span data-i18n="set.hoverGloss"></span></label>
+          <label class="switch-row"><input id="set-autoClean" type="checkbox" /> <span data-i18n="set.autoClean"></span></label>
+          <label class="switch-row"><input id="set-autoSave" type="checkbox" /> <span data-i18n="set.autoSave"></span></label>
+          <label class="switch-row"><input id="set-overlayEnabled" type="checkbox" /> <span data-i18n="set.overlay"></span></label>
+          <label class="switch-row"><input id="set-followPlayback" type="checkbox" /> <span data-i18n="set.followPlayback"></span></label>
+          <label class="switch-row"><input id="set-stickyCurrent" type="checkbox" /> <span data-i18n="set.stickyCurrent"></span></label>
+          <label class="switch-row"><input id="set-pauseOnExplain" type="checkbox" /> <span data-i18n="set.pauseOnExplain"></span></label>
+        </div>
+
+        <button id="btn-save-settings" data-i18n="set.save"></button>
+        <div id="settings-hint" class="hint"></div>
+        <div id="settings-help" class="settings-help"></div>
+
+        <div class="card usage-card">
+          <div class="usage-title" data-i18n="usage.title"></div>
+          <div id="usage-body" class="usage-body"></div>
+          <button id="btn-reset-usage" class="usage-reset" data-i18n="usage.reset"></button>
+          <div class="settings-help" data-i18n="usage.note"></div>
+        </div>
+
+        <div class="card usage-card">
+          <div class="usage-title" data-i18n="diag.title"></div>
+          <button id="btn-diagnose" class="usage-reset" data-i18n="diag.run"></button>
+          <pre id="diag-out" class="diag-out hidden"></pre>
+          <div class="settings-help" data-i18n="diag.hint"></div>
+        </div>
+
+        <div class="card usage-card">
+          <div class="usage-title" data-i18n="backup.title"></div>
+          <div class="backup-actions">
+            <button id="btn-backup-export" class="usage-reset" data-i18n="backup.export"></button>
+            <button id="btn-backup-import" class="usage-reset" data-i18n="backup.import"></button>
+          </div>
+          <input id="backup-file" type="file" accept="application/json,.json" hidden />
+          <div id="backup-hint" class="hint"></div>
+          <div class="settings-help" data-i18n="backup.hint"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div id="export-modal" class="modal hidden">
+    <div class="modal-box">
+      <div class="modal-title" data-i18n="exp.title"></div>
+      <label class="switch-row"><input type="checkbox" id="exp-include-notes" checked /> <span data-i18n="exp.notes"></span></label>
+      <label class="switch-row"><input type="checkbox" id="exp-include-vocab" checked /> <span data-i18n="exp.vocab"></span></label>
+      <label class="switch-row"><input type="checkbox" id="exp-include-transcript" /> <span data-i18n="exp.transcript"></span></label>
+      <div class="modal-row exp-sub">
+        <span data-i18n="learn.view"></span>
+        <label><input type="radio" name="exp-trans-mode" value="bilingual" checked /> <span data-i18n="learn.viewBoth"></span></label>
+        <label><input type="radio" name="exp-trans-mode" value="original" /> <span data-i18n="learn.viewOrig"></span></label>
+        <label><input type="radio" name="exp-trans-mode" value="target" /> <span data-i18n="learn.viewTarget"></span></label>
+      </div>
+      <div class="modal-row">
+        <span data-i18n="exp.format"></span>
+        <label><input type="radio" name="exp-format" value="markdown" checked /> Markdown</label>
+        <label><input type="radio" name="exp-format" value="csv" /> CSV</label>
+        <label><input type="radio" name="exp-format" value="html" /> HTML</label>
+      </div>
+      <div class="modal-actions">
+        <button id="exp-cancel" data-i18n="exp.cancel"></button>
+        <button id="exp-confirm" data-i18n="exp.download"></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="i18n.js"></script>
+  <script src="utils.js"></script>
+  <script src="sidepanel.js"></script>
+</body>
+</html>

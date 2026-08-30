@@ -1,0 +1,682 @@
+/* sidepanel.css
+   视觉参考 Figma：中性灰不带色相、1px 细线代替阴影、小字号、
+   颜色只出现在"激活/选中"状态，其余全靠灰阶分层次。
+   金色占据 Figma 里蓝色的位置；红色降为次要色，只留给删除这类破坏性操作。
+
+   ── 主题规则（改这个文件时务必遵守）──
+   浅色是默认，写在裸 :root 里；深色写两遍：
+     @media (prefers-color-scheme: dark) 里加 :root:not([data-theme="light"])
+     以及 :root[data-theme="dark"]
+   **绝不要把某个颜色只定义在 :not([data-theme="light"]) 里而不套媒体查询** ——
+   那个选择器在"未标记主题"的默认状态下也成立，会把深色样式漏进浅色模式。
+
+   注意：这个文件含中文注释，改动请用能正确处理 UTF-8 的工具。
+   PowerShell 的 Get-Content/Set-Content 默认按系统码页读写，会把中文变成乱码。
+*/
+
+:root {
+  /* 中性色 */
+  --ground: #f5f5f5;   /* 面板底 */
+  --surface: #ffffff;  /* 卡片面 */
+  --sunken: #fafafa;   /* 输入框等下陷面 */
+  --ink: #1e1e1e;
+  --ink-soft: #4a4a4a;
+  --muted: #757575;
+  --line: #e6e6e6;
+  --line-strong: #d4d4d4;
+
+  /* 主色：金。拆成两个是因为用途的对比度要求相反 ——
+     --gold 用来画**文字**（译文、时间戳），在白底上必须够深才读得清；
+     --gold-btn 是**按钮底色**，可以亮得多，代价是上面的文字要用深色。
+     金色越浅白字越读不清（浅三档白字只有 2.47:1），所以浅金一律配深字。
+     想调深浅只改 --gold-btn 这一行：#c8940f 稍深、#d8a621 更亮。 */
+  --gold: #b8830a;
+  --gold-btn: #c8940f;
+  --gold-btn-hover: #b8830a;
+  --gold-soft: #fbf3e0;
+  --gold-line: #e8d5a6;
+  --on-gold: #ffffff;  /* 金底上的文字色 */
+  /* 生词高亮底。浅色下淡淡一层就够；深色下必须提得很多，
+     深金 22% 叠在 #2c2c2c 上只有 #4E4327，几乎看不出来（实测反馈形同虚设）。 */
+  --hl-bg: rgba(200, 148, 15, 0.24);
+  --hl-fg: inherit;
+
+  /* 次要色：红，只用于删除 */
+  --red: #c4302b;
+
+  /* 顶栏 */
+  --bar-bg: #ffffff;
+  --bar-ink: #1e1e1e;
+  --bar-muted: #757575;
+
+  /* 提示条 */
+  --warn-bg: #fdf6e6;
+  --warn-line: #ecdcb0;
+  --warn-ink: #7a5b00;
+
+  --radius: 7px;
+  --radius-sm: 5px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #1e1e1e;
+    --surface: #2c2c2c;
+    --sunken: #262626;
+    --ink: #e6e6e6;
+    --ink-soft: #c4c4c4;
+    --muted: #9b9b9b;
+    --line: #3d3d3d;
+    --line-strong: #4d4d4d;
+
+    --gold: #e8be5c;
+    --gold-btn: #e8be5c;
+    --gold-btn-hover: #f0cb75;
+    --gold-soft: #332d1d;
+    --gold-line: #52462c;
+    --on-gold: #1e1e1e;  /* 亮金上白字只有 1.9:1，必须用深色字 */
+    /* 用亮金而不是深金，且提到 30%：叠在卡片底 #2c2c2c 上约 #64583A，
+       和周围形成明显的金色带，同时 #e6e6e6 文字在上面仍有约 4.7:1 对比度 */
+    /* 深色下不能只是把同色底加深 —— 那样底色越来越接近正文的浅色，反而更糊
+       （实测 rgba(232,190,92,0.45) 的对比度只有 3.97:1，比 0.30 还差）。
+       正确做法是反转极性：亮底 + 深字，和真实荧光笔一个道理，也和浅色模式的极性一致。
+       #d3aa4e 上放 #1e1e1e 实测 7.64:1。 */
+    --hl-bg: #d3aa4e;
+    --hl-fg: #1e1e1e;
+
+    --red: #e0655f;
+
+    --bar-bg: #141414;
+    --bar-ink: #f0f0f0;
+    --bar-muted: #8a8a8a;
+
+    --warn-bg: #332d1d;
+    --warn-line: #52462c;
+    --warn-ink: #e8be5c;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground: #1e1e1e;
+  --surface: #2c2c2c;
+  --sunken: #262626;
+  --ink: #e6e6e6;
+  --ink-soft: #c4c4c4;
+  --muted: #9b9b9b;
+  --line: #3d3d3d;
+  --line-strong: #4d4d4d;
+
+  --gold: #e8be5c;
+  --gold-btn: #e8be5c;
+  --gold-btn-hover: #f0cb75;
+  --gold-soft: #332d1d;
+  --gold-line: #52462c;
+  --on-gold: #1e1e1e;
+  --hl-bg: #d3aa4e;
+  --hl-fg: #1e1e1e;
+
+  --red: #e0655f;
+
+  --bar-bg: #141414;
+  --bar-ink: #f0f0f0;
+  --bar-muted: #8a8a8a;
+
+  --warn-bg: #332d1d;
+  --warn-line: #52462c;
+  --warn-ink: #e8be5c;
+}
+
+/* ============================================================ 基础 */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--ground);
+  -webkit-font-smoothing: antialiased;
+}
+
+#app { display: flex; flex-direction: column; height: 100vh; }
+
+.hidden { display: none !important; }
+
+/* ============================================================ 顶栏 */
+#video-banner {
+  padding: 9px 11px;
+  background: var(--bar-bg);
+  color: var(--bar-ink);
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+#video-banner-text { flex: 1; min-width: 0; }
+#video-title { font-weight: 600; font-size: 12px; line-height: 1.35; }
+#video-meta { font-size: 10.5px; color: var(--bar-muted); margin-top: 2px; }
+
+/* 设置用得少，不值得在标签栏常占一格，挪到标题右边 */
+#btn-settings {
+  flex-shrink: 0;
+  background: var(--sunken);
+  border: 1px solid var(--line-strong);
+  color: var(--muted);
+  border-radius: var(--radius-sm);
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+#btn-settings:hover { color: var(--ink); border-color: var(--muted); }
+#btn-settings.active { background: var(--gold-btn); border-color: var(--gold-btn); color: var(--on-gold); }
+
+/* ============================================================ 首次使用提示条 */
+#setup-banner {
+  background: var(--warn-bg);
+  border-bottom: 1px solid var(--warn-line);
+  color: var(--warn-ink);
+  font-size: 11.5px;
+  line-height: 1.5;
+  padding: 8px 11px;
+  flex-shrink: 0;
+}
+.banner-actions { display: flex; gap: 6px; margin-top: 6px; }
+.banner-actions button { font-size: 10.5px; padding: 3px 8px; }
+
+/* ============================================================ 标签栏 */
+#tabs {
+  display: flex;
+  background: var(--bar-bg);
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.tab-btn {
+  flex: 1;
+  border: none;
+  /* 必须显式清掉圆角：button 基础样式带 5px 圆角，
+     下划线会沿着圆角走，两端被弯成弧形。 */
+  border-radius: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  padding: 7px 4px 5px;
+  cursor: pointer;
+  font-size: 11px;
+  font-family: inherit;
+  color: var(--muted);
+}
+.tab-btn:hover { color: var(--ink); }
+.tab-btn.active {
+  color: var(--gold);
+  font-weight: 700;
+  border-bottom-color: var(--gold);
+}
+
+/* ============================================================ 面板 */
+#panels { flex: 1; overflow-y: auto; background: var(--ground); }
+.panel { display: none; padding: 11px 11px 24px; }
+.panel.active { display: flex; flex-direction: column; gap: 11px; }
+
+/* B 版的核心：内容浮在灰底上，每块有 1px 边框和留白 */
+.card,
+.settings-group,
+.note-item,
+.vocab-item,
+#transcript-list,
+.outline-point {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.card { padding: 11px; display: flex; flex-direction: column; gap: 8px; }
+.card-label {
+  font-size: 9.5px;
+  color: var(--muted);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+/* 当前句卡片置顶：字幕列表滚动时它留在最上面。
+   在 #app 上挂 .sticky-current 开启（跟着设置项走）。 */
+.sticky-current #current-card {
+  position: sticky;
+  top: -11px;   /* 抵消 .panel 的上内边距，贴着滚动区顶部 */
+  z-index: 5;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+:root[data-theme="dark"] .sticky-current #current-card { box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .sticky-current #current-card { box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4); }
+}
+
+/* 保存按钮贴在输入框右边，不再独占一整行 */
+.note-input-row { display: flex; gap: 6px; align-items: flex-end; }
+.note-input-row textarea { flex: 1; min-width: 0; }
+.note-input-row button { flex-shrink: 0; white-space: nowrap; }
+
+.selectable-text { font-size: 12.5px; line-height: 1.55; user-select: text; }
+.target-text { font-size: 11.5px; color: var(--gold); min-height: 14px; }
+.row-actions { display: flex; gap: 5px; flex-wrap: wrap; }
+
+/* ============================================================ 控件 */
+button {
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: var(--radius-sm);
+  padding: 4px 9px;
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+}
+button:hover { background: var(--sunken); border-color: var(--muted); }
+button:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
+button:disabled { opacity: 0.5; cursor: default; }
+button:disabled:hover { background: var(--surface); border-color: var(--line-strong); }
+
+/* 主按钮 */
+#btn-save-current,
+.export-btn,
+#btn-full-translate,
+#btn-gen-outline,
+#btn-save-settings,
+#exp-confirm {
+  background: var(--gold-btn);
+  border-color: var(--gold-btn);
+  color: var(--on-gold);
+  font-weight: 700;
+}
+#btn-save-current:hover,
+.export-btn:hover,
+#btn-full-translate:hover,
+#btn-gen-outline:hover,
+#btn-save-settings:hover,
+#exp-confirm:hover {
+  background: var(--gold-btn-hover);
+  border-color: var(--gold-btn-hover);
+}
+/* 主按钮禁用时不要再显示成"可点的金色" */
+#btn-full-translate:disabled {
+  background: var(--surface);
+  border-color: var(--line-strong);
+  color: var(--muted);
+  font-weight: 400;
+}
+
+/* 删除是唯一保留红色的地方 */
+.note-delete { color: var(--red); }
+.note-delete:hover { border-color: var(--red); }
+
+textarea, input[type=text], input[type=password], select {
+  width: 100%;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--sunken);
+  color: var(--ink);
+  padding: 5px 7px;
+  font-size: 11.5px;
+  font-family: inherit;
+}
+textarea { min-height: 42px; resize: vertical; line-height: 1.5; }
+textarea::placeholder { color: var(--muted); }
+textarea:focus, input:focus, select:focus { outline: none; border-color: var(--gold); }
+
+/* 分段控件：二三选一用它比下拉框好 —— 当前状态不用点开就能看见，窄栏里也更省地方 */
+.seg {
+  display: inline-flex;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface);
+}
+.seg button {
+  border: 0;
+  border-right: 1px solid var(--line-strong);
+  border-radius: 0;
+  padding: 3px 9px;
+  font-size: 10.5px;
+  color: var(--muted);
+  background: transparent;
+}
+.seg button:last-child { border-right: 0; }
+.seg button:hover { background: var(--sunken); color: var(--ink); }
+.seg button.on { background: var(--gold-btn); color: var(--on-gold); font-weight: 700; }
+.seg button.on:hover { background: var(--gold-btn-hover); }
+.seg button:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+
+.hint { font-size: 10.5px; color: var(--muted); margin: 0; }
+
+/* ============================================================ 字幕页 */
+#transcript-toolbar {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 10.5px;
+  color: var(--muted);
+}
+.tool-row { display: flex; align-items: center; gap: 6px; }
+
+#transcript-list { padding: 2px 11px; }
+
+/* 面板改成 flex 布局后，空的容器也会占一份 gap，看起来像多了一段空白 */
+#transcript-list:empty,
+#outline-chapters:empty,
+#outline-quotes:empty,
+#outline-hint:empty,
+#translate-progress:empty,
+#settings-hint:empty,
+#current-save-hint:empty,
+#notes-list:empty,
+#vocab-list:empty { display: none; }
+
+/* 列表项之间的间距由容器统一给，别让每一项自己带 margin */
+#notes-list, #vocab-list { display: flex; flex-direction: column; gap: 8px; }
+
+.tline { border-bottom: 1px solid var(--line); padding: 6px 0; }
+.tline:last-child { border-bottom: 0; }
+.t-time { color: var(--muted); font-size: 10px; cursor: pointer; font-variant-numeric: tabular-nums; }
+.t-time:hover { color: var(--gold); text-decoration: underline; }
+.tline.current {
+  background: var(--gold-soft);
+  margin: 0 -11px;
+  padding: 6px 11px;
+  border-radius: var(--radius-sm);
+  border-bottom-color: transparent;
+}
+.tline.current .t-time { color: var(--gold); font-weight: 700; }
+.t-original { font-size: 12.5px; line-height: 1.5; }
+.t-target { font-size: 11.5px; color: var(--gold); margin-top: 2px; }
+.ytlb-word { cursor: pointer; border-radius: 3px; }
+.ytlb-word:hover { background: var(--gold-soft); box-shadow: 0 0 0 1px var(--gold-line); }
+.t-explain {
+  font-size: 11.5px;
+  background: var(--gold-soft);
+  border: 1px solid var(--gold-line);
+  border-radius: var(--radius-sm);
+  padding: 5px 7px;
+  margin-top: 4px;
+  line-height: 1.5;
+}
+
+/* 解释结果单独一块，不塞进 .hint —— 那个是小号浅灰读不清，
+   而且会被"当前句更新"顺手清掉，字幕一滚就没了。这里留到手动关闭。 */
+#explain-box {
+  background: var(--gold-soft);
+  border: 1px solid var(--gold-line);
+  border-radius: var(--radius);
+  padding: 8px 9px;
+}
+.explain-word { font-weight: 700; font-size: 12px; color: var(--gold); margin-bottom: 3px; }
+.explain-text { font-size: 12px; line-height: 1.55; color: var(--ink); user-select: text; }
+.explain-actions { display: flex; gap: 5px; margin-top: 7px; }
+.explain-actions button { font-size: 10.5px; padding: 3px 8px; }
+
+/* ============================================================ 概括页 */
+.outline-summary { display: flex; flex-direction: column; gap: 6px; }
+.outline-point { padding: 8px 10px; cursor: pointer; }
+.outline-point:hover { border-color: var(--gold-line); background: var(--gold-soft); }
+.outline-head { display: flex; gap: 7px; align-items: baseline; margin-bottom: 2px; }
+.chapter-time {
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: 11px;
+}
+.outline-title { font-weight: 700; font-size: 12px; line-height: 1.35; }
+.outline-text { font-size: 12px; line-height: 1.5; color: var(--ink-soft); }
+
+/* ============================================================ 笔记 / 生词本 */
+.toolbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+/* 计数 + 高亮提示挤在左边，导出按钮推到右边 */
+.toolbar .hl-hint { margin-right: auto; opacity: 0.75; }
+
+/* 生词高亮。用金色底而不是描边 —— 卡片里字号只有 12.5px，描边这个尺寸看不出来。
+   浏览器给 <mark> 的默认底色是亮黄，深色模式下会刺眼，所以两个色都自己定。 */
+mark.ytlb-hl {
+  background: var(--hl-bg);
+  color: var(--hl-fg);
+  border-radius: 3px;
+  padding: 0 2px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.note-item, .vocab-item { padding: 9px 10px; display: flex; flex-direction: column; gap: 5px; }
+.note-video { font-size: 10px; color: var(--muted); }
+.note-video a { color: var(--muted); cursor: pointer; text-decoration: none; }
+.note-video a:hover { color: var(--gold); text-decoration: underline; }
+.note-orig { font-size: 12.5px; line-height: 1.5; }
+.note-trans { font-size: 11.5px; color: var(--gold); }
+/* 生词卡片里的"来源例句"是**原文**，不是译文 —— 原来套的是 .note-trans（金色字），
+   金底高亮叠在金色字上根本看不出来，而这正是自动高亮最该起作用的地方。 */
+.vocab-example { font-size: 11.5px; line-height: 1.5; color: var(--ink-soft); }
+.note-explain {
+  font-size: 11.5px;
+  background: var(--gold-soft);
+  border: 1px solid var(--gold-line);
+  border-radius: var(--radius-sm);
+  padding: 5px 7px;
+  line-height: 1.5;
+}
+.note-item textarea, .vocab-item textarea { min-height: 32px; }
+.note-actions { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+.note-actions button { font-size: 10.5px; padding: 3px 7px; }
+.note-saved { font-size: 10.5px; color: var(--gold); }
+
+/* ============================================================ 设置页 */
+.settings-group { padding: 11px; display: flex; flex-direction: column; gap: 9px; }
+.settings-group > label { display: block; font-size: 11px; color: var(--muted); }
+.settings-group > label > input,
+.settings-group > label > select { margin-top: 3px; }
+.switch-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+.switch-row input { margin: 1px 0 0; flex-shrink: 0; accent-color: var(--gold-btn); }
+/* 会花钱的开关单独框出来 */
+.settings-help { font-size: 10.5px; color: var(--muted); line-height: 1.5; }
+.settings-help a { color: var(--gold); }
+
+/* 用量统计 */
+.usage-card { display: flex; flex-direction: column; gap: 6px; }
+.usage-title {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.usage-body { font-size: 11.5px; display: flex; flex-direction: column; gap: 2px; }
+.usage-total { margin-bottom: 3px; }
+.usage-total b { color: var(--gold); font-size: 13px; }
+.usage-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.usage-row.usage-warn { color: var(--red); font-weight: 700; }
+.usage-model {
+  font-style: normal;
+  font-size: 9.5px;
+  color: var(--muted);
+  background: var(--sunken);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 0 4px;
+  margin-left: 5px;
+}
+.usage-reset { font-size: 10.5px; padding: 3px 8px; align-self: flex-start; }
+
+/* 诊断输出：等宽、可选中复制、超长横向滚动而不撑破面板 */
+.diag-out {
+  margin: 0;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 10.5px;
+  line-height: 1.6;
+  background: var(--sunken);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 7px 8px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  user-select: text;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+/* ============================================================ 悬停速查气泡 */
+/* 这里的颜色**故意不跟主题走**：气泡是浮在内容之上的临时提示，
+   两种主题下都用深底才够醒目、边界才清楚（Figma 的 tooltip 也是一律深色）。 */
+#panel-gloss-tip {
+  position: fixed;
+  z-index: 9999;
+  max-width: 240px;
+  background: #2c2c2c;
+  color: #e8be5c;
+  border: 1px solid #4d4d4d;
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  font-size: 11.5px;
+  line-height: 1.4;
+  font-weight: 600;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
+}
+
+/* ============================================================ 导出弹窗 */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 20, 20, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+.modal-box {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  width: 268px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.modal-title { font-weight: 700; font-size: 13px; }
+.modal-row { font-size: 11px; display: flex; gap: 9px; align-items: center; flex-wrap: wrap; color: var(--muted); }
+.modal-row label { display: flex; align-items: center; gap: 4px; color: var(--ink); }
+.modal-row input { width: auto; accent-color: var(--gold-btn); }
+.modal-actions { display: flex; justify-content: flex-end; gap: 7px; margin-top: 3px; }
+
+/* 卡片内联编辑器：断句是规则算的，留一个人工兜底 */
+.card-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--line);
+}
+.card-editor .ed-label { font-size: 10px; color: var(--muted); }
+.card-editor textarea {
+  width: 100%;
+  min-height: 52px;
+  resize: vertical;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 5px 6px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--sunken);
+  color: var(--ink);
+  box-sizing: border-box;
+}
+.card-editor .ed-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+/* 「重新翻译」要花钱，推到右边并且弱化，避免手滑点到 */
+.card-editor .ed-retrans { margin-left: auto; opacity: 0.85; }
+.card-editor .ed-hint { flex-basis: 100%; }
+
+/* 导出弹窗里"原文 / 双语"是「包含字幕全文」的子选项，缩进 + 弱化表明从属关系 */
+.modal .exp-sub {
+  margin-left: 22px;
+  font-size: 12px;
+  color: var(--muted);
+}
+/* 没勾字幕全文时置灰，避免让人以为它管的是笔记和生词 */
+.modal .exp-sub.off { opacity: 0.4; pointer-events: none; }
+
+/* 备份/恢复的两个按钮并排 */
+.backup-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.backup-actions button { flex: 1; min-width: 120px; }
+
+/* 原文轨道下拉：只在多语言字幕的视频上出现，不能把工具栏撑变形 */
+#source-lang-select {
+  flex: 1;
+  min-width: 0;
+  max-width: 180px;
+  font-size: 11px;
+  padding: 3px 5px;
+}
+
+/* 生词卡片上的「详细解释」要再花一次调用，做成虚线描边，和免费按钮区分 */
+.vocab-deep { border-style: dashed !important; opacity: 0.85; }
+.vocab-deep:hover:not(:disabled) { opacity: 1; }
+
+/* 从「去填 Key」跳过来时闪一下。设置不在标签栏里，切过去视觉变化很弱，
+   不给个落点第一次用的人会以为按钮没反应。用 --gold 而不是红：
+   这是指路，不是报错。 */
+@keyframes ytlb-flash {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(184, 131, 10, 0); }
+  30%      { box-shadow: 0 0 0 3px rgba(184, 131, 10, 0.45); }
+}
+#set-apiKey.flash {
+  border-color: var(--gold);
+  animation: ytlb-flash 0.6s ease-in-out 2;
+}
+
+/* 详细解释自成一块。它讲用法，上面那条讲词义，是两件事 ——
+   混排会让人以为在重复。用下陷底色和金色竖条区分：同一家族，但一眼看得出不是同一段。 */
+.vocab-deep-text {
+  margin-top: 6px;
+  background: var(--sunken);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--gold-btn);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  white-space: pre-wrap;
+}
+.vocab-deep-tag {
+  display: inline-block;
+  font-size: 9.5px;
+  color: var(--gold);
+  border: 1px solid var(--gold-line);
+  background: var(--gold-soft);
+  border-radius: 3px;
+  padding: 0 4px;
+  margin-right: 5px;
+  vertical-align: 1px;
+}

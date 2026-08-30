@@ -1,0 +1,9 @@
+# 统一换行符，避免 Windows/macOS/Linux 之间来回污染 diff
+* text=auto eol=lf
+
+# 二进制不要碰
+*.png binary
+*.zip binary
+
+# PowerShell 5.1 只认带 BOM 的 UTF-8 脚本，交给 git 转换会出问题
+*.ps1 -text

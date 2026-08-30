@@ -1,0 +1,227 @@
+/* overlay.css — 视频画面上的元素
+   这些元素永远叠在视频画面（深色）上，所以不跟随浏览器主题，
+   固定用"深底 + 亮金"这一套，和侧边栏深色模式的金色 #e8be5c 保持一致。 */
+
+#ytlb-overlay {
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  /* 由 content.js 按控制栏真实高度算出来。不能用百分比：小窗口下 10% 只有
+     三四十像素，正好落在进度条上，而字幕行会吃掉鼠标事件，进度条就拖不动了。 */
+  bottom: var(--ytlb-bottom, 64px);
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  pointer-events: none;
+  text-align: center;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+#ytlb-overlay .ytlb-line {
+  pointer-events: auto;
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.74);
+  color: #fff;
+  line-height: 1.4;
+  max-width: 100%;
+}
+
+/* 字号由 content.js 按播放器宽度算出来写进 --ytlb-size，全屏时会自动变大。
+   这里给个默认值，万一脚本没来得及设置也不会太难看。 */
+#ytlb-overlay .ytlb-line-original {
+  font-size: var(--ytlb-size, 18px);
+  font-weight: 500;
+}
+
+#ytlb-overlay .ytlb-line-target {
+  font-size: calc(var(--ytlb-size, 18px) * 0.85);
+  color: #e8be5c;
+  cursor: pointer;
+}
+
+#ytlb-overlay .ytlb-word {
+  cursor: pointer;
+  border-radius: 3px;
+  padding: 0 1px;
+}
+
+#ytlb-overlay .ytlb-word:hover {
+  background: rgba(232, 190, 92, 0.32);
+  text-decoration: underline;
+}
+
+/* 一键记录整段的小按钮：跟着字幕走，不用满屏找 */
+#ytlb-save-btn {
+  pointer-events: auto;
+  align-self: flex-end;
+  margin-bottom: 2px;
+  background: #e8be5c;
+  color: #1e1e1e;
+  border: none;
+  border-radius: 12px;
+  padding: 3px 10px;
+  font-size: calc(var(--ytlb-size, 18px) * 0.62);
+  font-weight: 700;
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.15s;
+  font-family: inherit;
+}
+#ytlb-save-btn:hover { opacity: 1; }
+
+/* ---------------- 点词解释弹窗 ---------------- */
+#ytlb-popup {
+  position: fixed;
+  z-index: 2147483647;
+  max-width: 300px;
+  background: rgba(28, 28, 30, 0.97);
+  color: #e6e6e6;
+  border: 1px solid #4d4d4d;
+  border-radius: 7px;
+  padding: 9px 11px;
+  font-size: 13px;
+  line-height: 1.5;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+#ytlb-popup .ytlb-popup-word { color: #e8be5c; font-weight: 700; margin-bottom: 3px; }
+#ytlb-popup .ytlb-popup-explain { color: #e6e6e6; user-select: text; }
+#ytlb-popup .ytlb-popup-loading { color: #9b9b9b; }
+#ytlb-popup .ytlb-popup-err { color: #e0655f; }
+#ytlb-popup .ytlb-popup-saved { color: #e8be5c; font-size: 11.5px; margin-top: 4px; }
+#ytlb-popup .ytlb-popup-save {
+  margin-top: 7px;
+  background: transparent;
+  color: #e8be5c;
+  border: 1px solid rgba(232, 190, 92, 0.5);
+  border-radius: 5px;
+  padding: 3px 8px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+#ytlb-popup .ytlb-popup-save:hover { background: rgba(232, 190, 92, 0.14); }
+
+/* ---------------- 悬停取词小气泡 ---------------- */
+/* 和点词卡片用同一套外观。原来刻意做得不一样，但差别只有 0.01 的透明度和
+   40px 宽度 —— 那不叫"能分清"，只叫"看起来不一致"。它们本来就是同一类东西。 */
+#ytlb-gloss-tip {
+  position: fixed;
+  z-index: 2147483647;
+  max-width: 300px;
+  background: rgba(28, 28, 30, 0.97);
+  color: #e8be5c;
+  border: 1px solid rgba(232, 190, 92, 0.4);
+  border-radius: 5px;
+  padding: 5px 9px;
+  font-size: 13px;
+  line-height: 1.35;
+  font-weight: 600;
+  /* 气泡里有「＋」按钮，必须能被点到 —— 原来是 none */
+  pointer-events: auto;
+  display: none;
+  align-items: center;
+  gap: 7px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+/* ---------------- 存入笔记后的确认提示条 ---------------- */
+/* 必须让人看见到底存了哪一段，否则"刚进入新句就算上一段"的判断会变成猜谜 */
+#ytlb-toast {
+  position: fixed;
+  right: 16px;
+  bottom: 140px;
+  z-index: 2147483647;
+  width: 300px;
+  background: rgba(28, 28, 30, 0.96);
+  color: #e6e6e6;
+  border: 1px solid #4d4d4d;
+  border-radius: 7px;
+  padding: 9px 11px;
+  font-size: 13px;
+  line-height: 1.45;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+#ytlb-toast .ytlb-toast-title { color: #e8be5c; font-weight: 700; font-size: 12px; margin-bottom: 3px; }
+#ytlb-toast .ytlb-toast-text { color: #e6e6e6; }
+#ytlb-toast .ytlb-toast-actions { display: flex; gap: 6px; margin-top: 7px; flex-wrap: wrap; }
+#ytlb-toast .ytlb-toast-btn {
+  background: transparent;
+  color: #e8be5c;
+  border: 1px solid rgba(232, 190, 92, 0.5);
+  border-radius: 5px;
+  padding: 3px 8px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+#ytlb-toast .ytlb-toast-btn:hover { background: rgba(232, 190, 92, 0.14); }
+
+/* ---------------- 页面内入口按钮 ---------------- */
+/* 原来是 YouTube 红，太抢视线；改成金色，和字幕译文归为同一视觉组 */
+#ytlb-launcher {
+  position: fixed;
+  right: 16px;
+  bottom: 90px;
+  z-index: 2147483646;
+  background: #e8be5c;
+  color: #1e1e1e;
+  border: none;
+  border-radius: 16px;
+  padding: 8px 15px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  opacity: 0.85;
+  transition: opacity 0.15s;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+#ytlb-launcher:hover { opacity: 1; }
+
+/* 悬停气泡上的「＋加入生词本」。做小一点：它是顺手的动作，不该抢走译文的注意力 */
+.ytlb-gloss-add {
+  flex: 0 0 auto;
+  border: 1px solid rgba(232, 190, 92, 0.55);
+  background: transparent;
+  color: #e8be5c;
+  border-radius: 4px;
+  font-size: 13px;
+  line-height: 1;
+  padding: 2px 5px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.ytlb-gloss-add:hover {
+  background: #e8be5c;
+  color: #1c1c1e;
+}
+
+/* 提示条右上角的关闭按钮。做小、做淡 —— 主要靠"点别处就关"，
+   这个 ✕ 只是给还不知道那条规则的人一个明确出口 */
+/* 注意：这里**不能**再写 #ytlb-toast { position: relative }。
+   上面第 133 行已经是 position: fixed，而 fixed 本身就能当 absolute 的定位参照。
+   再写一条同名同优先级的规则会覆盖掉 fixed，提示条会掉进正常文档流、
+   跑到整个页面最底部 —— 表现是"笔记存进去了但提示条不出现"，且不报任何错。 */
+.ytlb-toast-close {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 13px;
+  line-height: 1;
+  padding: 2px 4px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.ytlb-toast-close:hover { color: #fff; }
+/* 标题右边给关闭按钮让出位置，免得长标题压到它 */
+.ytlb-toast-title { padding-right: 18px; }

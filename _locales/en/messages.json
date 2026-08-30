@@ -1,0 +1,14 @@
+{
+  "extName": {
+    "message": "YouTube Lingopal",
+    "description": "Extension name shown in Chrome"
+  },
+  "extDesc": {
+    "message": "Turn YouTube videos into language learning with bilingual subtitles, instant word explanations, and one-key notes.",
+    "description": "Store listing description"
+  },
+  "actionTitle": {
+    "message": "Open YouTube Lingopal",
+    "description": "Toolbar icon tooltip"
+  }
+}

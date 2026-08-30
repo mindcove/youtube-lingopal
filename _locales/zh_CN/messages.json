@@ -1,0 +1,14 @@
+{
+  "extName": {
+    "message": "YouTube Lingopal",
+    "description": "Chrome 里显示的扩展名"
+  },
+  "extDesc": {
+    "message": "看 YouTube 学外语的搭子：双语字幕、点词即懂、笔记速存。",
+    "description": "商店简介"
+  },
+  "actionTitle": {
+    "message": "打开 YouTube Lingopal 面板",
+    "description": "工具栏图标悬停提示"
+  }
+}
